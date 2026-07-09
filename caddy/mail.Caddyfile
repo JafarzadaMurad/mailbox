@@ -10,7 +10,7 @@
 #  Mailcow-un mail servislərinə (SMTP/IMAP) köçürülür.
 # =============================================================================
 
-mail.example.com {
+mailbox.tural.ai {
 	reverse_proxy https://127.0.0.1:8453 {
 		transport http {
 			# Mailcow-un daxili nginx-i öz-imzalı sertifikat verir;
