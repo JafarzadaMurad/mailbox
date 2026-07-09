@@ -1,0 +1,24 @@
+# =============================================================================
+#  Mailcow web UI / webmail üçün Caddy bloku
+#  Bu bloku əsas Caddyfile-a əlavə et (və ya import et), sonra Caddy-ni reload:
+#      caddy reload --config /etc/caddy/Caddyfile
+#
+#  mail.example.com yerinə config.env-dəki MAIL_HOSTNAME-i yaz.
+#
+#  Caddy bu ad üçün AVTOMATİK real Let's Encrypt sertifikatı alır. Həmin
+#  sertifikat həm web UI-ni qoruyur, həm də scripts/sync-certs.sh vasitəsilə
+#  Mailcow-un mail servislərinə (SMTP/IMAP) köçürülür.
+# =============================================================================
+
+mail.example.com {
+	reverse_proxy https://127.0.0.1:8453 {
+		transport http {
+			# Mailcow-un daxili nginx-i öz-imzalı sertifikat verir;
+			# əlaqə lokaldır (127.0.0.1), ona görə yoxlamanı ötürürük.
+			tls_insecure_skip_verify
+		}
+		header_up Host {host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}

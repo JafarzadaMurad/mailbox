@@ -1,0 +1,10 @@
+# Mailcow-un öz reposu serverdə avtomatik klonlanır — git-ə düşməsin
+mailcow-dockerized/
+
+# Lokal/gizli üstələmələr
+*.local
+config.local.env
+
+# OS zibili
+.DS_Store
+Thumbs.db
