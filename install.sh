@@ -54,8 +54,11 @@ fi
 # --- 2) mailcow.conf generasiya et ---------------------------------------
 cd "$MAILCOW_DIR"
 if [[ ! -f mailcow.conf ]]; then
-  echo "==> mailcow.conf generasiya olunur"
-  MAILCOW_HOSTNAME="$MAIL_HOSTNAME" MAILCOW_TZ="$TIMEZONE" ./generate_config.sh
+  echo "==> mailcow.conf generasiya olunur (IPv6 shim ilə — bax scripts/no-ipv6.sh)"
+  # no-ipv6.sh olmadan mailcow Docker daemon-u restart etməyə çalışır və
+  # serverdəki bütün digər konteynerləri yıxardı.
+  MAILCOW_HOSTNAME="$MAIL_HOSTNAME" MAILCOW_TZ="$TIMEZONE" \
+    bash "$SCRIPT_DIR/scripts/no-ipv6.sh" ./generate_config.sh
 else
   echo "==> mailcow.conf artıq var, yenidən generasiya edilmir."
 fi

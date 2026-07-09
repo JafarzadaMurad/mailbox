@@ -19,6 +19,10 @@ hər istifadəçiyə **yalnız öz domenini** idarə etmə səlahiyyəti ver (Ma
 - **Mail TLS:** Mailcow-un daxili Let's Encrypt-i söndürülüb (80 portu Caddy-də olduğu üçün).
   `scripts/sync-certs.sh` Caddy-nin aldığı sertifikatı SMTP/IMAP servislərinə köçürür
   və systemd timer ilə avtomatik yeniləyir.
+- **IPv6:** Söndürülüb (IPv4-only mail). Səbəb: Mailcow host-da IPv6 aşkarlayanda
+  `/etc/docker/daemon.json`-u dəyişib **Docker daemon-u restart edir** — bu, serverdəki
+  bütün digər konteynerləri yıxardı. `scripts/no-ipv6.sh` bunun qarşısını alır.
+  ⚠️ **Mailcow-u həmişə `scripts/mailcow-update.sh` ilə yenilə**, birbaşa `./update.sh` ilə yox.
 
 ---
 
@@ -125,7 +129,8 @@ hədəf 9-10/10.
 ---
 
 ## Baxım
-- **Yeniləmə:** `cd /opt/mailcow-dockerized && ./update.sh`
+- **Yeniləmə:** `sudo bash /opt/MailBox/scripts/mailcow-update.sh`
+  (birbaşa `./update.sh` işlətmə — Docker daemon-u restart etməyə çalışar)
 - **Backup:** `./helper-scripts/backup_restore.sh backup all`
 - **Loglar:** `docker compose logs -f postfix-mailcow`
 - Öz mail serverinin təhlükəsizliyi/yeniləmələri **sənin məsuliyyətindədir**
@@ -139,6 +144,8 @@ MailBox/
 ├── install.sh                 # bootstrap (Mailcow klon + konfiq patch)
 ├── caddy/mail.Caddyfile       # Caddy reverse-proxy bloku
 ├── scripts/
+│   ├── no-ipv6.sh             # mailcow-un Docker daemon-u restart etməsinin qarşısını alır
+│   ├── mailcow-update.sh      # təhlükəsiz yeniləmə wrapper-i
 │   ├── sync-certs.sh          # Caddy sertifikatını mail servislərinə köçürür
 │   └── install-cert-sync.sh   # yuxarıdakını systemd timer kimi qurur
 └── dns/DNS-RECORDS.md         # MX/SPF/DKIM/DMARC + PTR təlimatı
