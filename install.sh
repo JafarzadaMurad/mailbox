@@ -79,6 +79,10 @@ set_conf HTTPS_BIND       "127.0.0.1"
 # Sertifikatı Caddy alır və sync-certs.sh onu mail servislərinə köçürür,
 # ona görə Mailcow-un öz Let's Encrypt-i söndürülür (80 portu Caddy-dədir).
 set_conf SKIP_LETS_ENCRYPT "y"
+# Docker daemon-da IPv6 aktiv DEYİL (daemon.json-a toxunmadıq, çünki onu
+# dəyişmək Docker-i restart edib serverdəki bütün digər konteynerləri yıxardı).
+# mailbox hostname-inin yalnız A qeydi var, ona görə IPv4-only işləyirik.
+set_conf ENABLE_IPV6 "false"
 
 echo
 echo "============================================================"
