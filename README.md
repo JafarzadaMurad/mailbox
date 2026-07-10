@@ -136,18 +136,36 @@ hədəf 9-10/10.
 - Öz mail serverinin təhlükəsizliyi/yeniləmələri **sənin məsuliyyətindədir**
   (videonun sonunda da vurğulanır).
 
+## Gündəlik iş: yeni domen əlavə etmək
+Quraşdırma bir dəfəlikdir. Bundan sonra hər yeni müştəri domeni üçün:
+```bash
+bash scripts/add-domain.sh musteri.com      # domen + DKIM + DNS sənədi
+bash scripts/check-dns.sh  musteri.com      # müştəri DNS-i yazandan sonra
+bash scripts/add-mailbox.sh musteri.com info
+bash scripts/add-domain-admin.sh musteri musteri.com
+```
+Ətraflı runbook: [docs/YENI-DOMEN.md](docs/YENI-DOMEN.md)
+
 ## Fayl strukturu
 ```
 MailBox/
 ├── README.md                  # bu fayl
 ├── config.env                 # redaktə etdiyin yeganə konfiq
+├── secrets.env                # Mailcow API açarı (git-ə düşmür)
 ├── install.sh                 # bootstrap (Mailcow klon + konfiq patch)
 ├── caddy/mail.Caddyfile       # Caddy reverse-proxy bloku
 ├── scripts/
 │   ├── no-ipv6.sh             # mailcow-un Docker daemon-u restart etməsinin qarşısını alır
 │   ├── mailcow-update.sh      # təhlükəsiz yeniləmə wrapper-i
 │   ├── sync-certs.sh          # Caddy sertifikatını mail servislərinə köçürür
-│   └── install-cert-sync.sh   # yuxarıdakını systemd timer kimi qurur
+│   ├── install-cert-sync.sh   # yuxarıdakını systemd timer kimi qurur
+│   ├── lib.sh                 # API köməkçiləri (birbaşa işlədilmir)
+│   ├── api-test.sh            # API açarının işlədiyini yoxlayır
+│   ├── add-domain.sh          # domen yarat + DKIM + DNS sənədi
+│   ├── check-dns.sh           # domenin DNS qeydlərini yoxla
+│   ├── add-mailbox.sh         # mailbox yarat
+│   └── add-domain-admin.sh    # domain admin təyin et
+├── docs/YENI-DOMEN.md         # yeni domen runbook-u
 └── dns/DNS-RECORDS.md         # MX/SPF/DKIM/DMARC + PTR təlimatı
 ```
 

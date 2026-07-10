@@ -5,6 +5,12 @@ mailcow-dockerized/
 *.local
 config.local.env
 
+# API açarları — GİT-Ə HEÇ VAXT DÜŞMƏSİN
+secrets.env
+
+# add-domain.sh-in yaratdığı per-domen DNS sənədləri
+dns/generated/
+
 # OS zibili
 .DS_Store
 Thumbs.db
