@@ -20,7 +20,15 @@ from pydantic import BaseModel, Field
 MAIL_HOSTNAME = os.environ["MAIL_HOSTNAME"]
 SERVER_IP = os.environ["SERVER_IP"]
 API_KEY = os.environ["MAILCOW_API_KEY"]
-API_BASE = os.environ.get("MAILCOW_API_URL", f"https://{MAIL_HOSTNAME}/api/v1")
+
+# Mailcow API-yə DAXİLİ şəbəkə üzərindən müraciət edirik, public URL ilə yox.
+# Səbəb: public URL-ə sorğu host-un öz IP-sinə qayıdır (hairpin) və Mailcow
+# mənbə IP kimi bu konteynerin Docker şəbəkəsini görür — API açarının IP
+# icazə siyahısından kənar qalır. Daxildən getdikdə mənbə IP həmişə Mailcow-un
+# öz şəbəkəsindəndir (172.22.1.0/24), Caddy də zəncirdən çıxır.
+MAILCOW_NGINX_HOST = os.environ.get("MAILCOW_NGINX_HOST", "mailcowdockerized-nginx-mailcow-1")
+MAILCOW_HTTP_PORT = os.environ.get("MAILCOW_HTTP_PORT", "8090")
+API_BASE = os.environ.get("MAILCOW_API_URL") or f"http://{MAILCOW_NGINX_HOST}:{MAILCOW_HTTP_PORT}/api/v1"
 
 Q_ALIASES = os.environ.get("DOMAIN_MAX_ALIASES", "400")
 Q_MAILBOXES = os.environ.get("DOMAIN_MAX_MAILBOXES", "10")
@@ -45,13 +53,19 @@ def mailcow(method: str, path: str, body: dict | None = None):
             timeout=30.0,
         )
     except httpx.HTTPError as e:
-        raise HTTPException(502, f"Mailcow API-yə çatmaq mümkün olmadı: {e}")
+        raise HTTPException(
+            502,
+            f"Mailcow API-yə çatmaq mümkün olmadı ({API_BASE}): {e}\n"
+            "Konteyner Mailcow-un şəbəkəsinə qoşulubmu? "
+            "docker network inspect mailcowdockerized_mailcow-network",
+        )
 
     if r.status_code in (401, 403):
         raise HTTPException(
             502,
-            "Mailcow API açarı rədd edildi (401/403). Paneldə API açarının "
-            "IP icazə siyahısını yoxla.",
+            "Mailcow API açarı rədd edildi (401/403).\n"
+            "API açarının IP icazə siyahısında Mailcow-un daxili şəbəkəsi "
+            "(172.22.1.0/24) olmalıdır.",
         )
     if r.status_code >= 400:
         raise HTTPException(502, f"Mailcow API xətası {r.status_code}: {r.text[:300]}")

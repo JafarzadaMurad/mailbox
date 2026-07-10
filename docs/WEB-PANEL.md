@@ -62,11 +62,27 @@ sudo docker compose logs -f mailbox-web   # Ctrl+C ilə çıx
 
 Yoxla:
 ```bash
-curl -sI http://127.0.0.1:8095/ | head -1     # HTTP/1.1 200 OK
-curl -sI https://mailadmin.tural.ai/ | head -1 # HTTP/2 401 (basic_auth işləyir)
+curl -s http://127.0.0.1:8095/api/domains          # domen siyahısı (JSON)
+curl -sI https://mailadmin.tural.ai/ | head -1     # HTTP/2 401 (basic_auth işləyir)
 ```
 
 `401` **doğru** cavabdır — brauzerdən açanda istifadəçi adı/parol soruşacaq.
+
+> `curl -I` (HEAD) tətbiqin `/` marşrutuna `405` qaytarır — bu normaldır, marşrut
+> yalnız GET qəbul edir. Sağlamlıq yoxlaması üçün `/api/domains` işlət.
+
+### Mailcow API-yə çatmır (502)?
+
+Panel API-yə **daxili Docker şəbəkəsi** üzərindən müraciət edir
+(`http://mailcowdockerized-nginx-mailcow-1:8090`), public URL ilə yox — belə olanda
+sorğu Caddy-yə toxunmur və mənbə IP həmişə Mailcow-un şəbəkəsindən (`172.22.1.0/24`) olur.
+
+Yoxla:
+```bash
+docker network ls | grep mailcow          # şəbəkə adı düzdürmü?
+docker inspect mailbox-web --format '{{json .NetworkSettings.Networks}}' | jq keys
+```
+Mailcow API açarının IP icazə siyahısında **`172.22.1.0/24`** olmalıdır.
 
 ## 4. İstifadə
 

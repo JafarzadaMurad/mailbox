@@ -10,3 +10,15 @@ services:
     # Tətbiqin öz autentifikasiyası yoxdur və Mailcow API açarını saxlayır.
     ports:
       - "127.0.0.1:8095:8000"
+    networks:
+      # default — çölə çıxış (DNS yoxlamaları üçün)
+      - default
+      # mailcow — API-yə daxildən müraciət (hairpin və IP filtri problemi olmasın)
+      - mailcow
+
+networks:
+  mailcow:
+    # Mailcow-un docker compose-unun yaratdığı şəbəkə.
+    # Ad fərqli olsa, yoxla:  docker network ls | grep mailcow
+    name: mailcowdockerized_mailcow-network
+    external: true
