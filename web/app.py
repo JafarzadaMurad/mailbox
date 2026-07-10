@@ -26,9 +26,17 @@ API_KEY = os.environ["MAILCOW_API_KEY"]
 # mənbə IP kimi bu konteynerin Docker şəbəkəsini görür — API açarının IP
 # icazə siyahısından kənar qalır. Daxildən getdikdə mənbə IP həmişə Mailcow-un
 # öz şəbəkəsindəndir (172.22.1.0/24), Caddy də zəncirdən çıxır.
+#
+# HTTPS portundan istifadə edirik, çünki Mailcow-un nginx-i HTTP portunda
+# 301 ilə HTTPS-ə yönləndirir.
 MAILCOW_NGINX_HOST = os.environ.get("MAILCOW_NGINX_HOST", "mailcowdockerized-nginx-mailcow-1")
-MAILCOW_HTTP_PORT = os.environ.get("MAILCOW_HTTP_PORT", "8090")
-API_BASE = os.environ.get("MAILCOW_API_URL") or f"http://{MAILCOW_NGINX_HOST}:{MAILCOW_HTTP_PORT}/api/v1"
+MAILCOW_HTTPS_PORT = os.environ.get("MAILCOW_HTTPS_PORT", "8453")
+API_BASE = os.environ.get("MAILCOW_API_URL") or f"https://{MAILCOW_NGINX_HOST}:{MAILCOW_HTTPS_PORT}/api/v1"
+
+# Mailcow-un sertifikatı `mailbox.tural.ai` üçündür, biz isə ona konteyner adı ilə
+# müraciət edirik → ad uyğunsuzluğu. Əlaqə Docker şəbəkəsindən çıxmadığı üçün
+# yoxlamanı söndürürük (Caddy də eyni sətri `tls_insecure_skip_verify` ilə keçir).
+_client = httpx.Client(verify=False, timeout=30.0, follow_redirects=False)
 
 Q_ALIASES = os.environ.get("DOMAIN_MAX_ALIASES", "400")
 Q_MAILBOXES = os.environ.get("DOMAIN_MAX_MAILBOXES", "10")
@@ -45,12 +53,11 @@ HERE = os.path.dirname(__file__)
 # --------------------------------------------------------------------------
 def mailcow(method: str, path: str, body: dict | None = None):
     try:
-        r = httpx.request(
+        r = _client.request(
             method,
             f"{API_BASE}{path}",
             headers={"X-API-Key": API_KEY, "Content-Type": "application/json"},
             json=body,
-            timeout=30.0,
         )
     except httpx.HTTPError as e:
         raise HTTPException(
@@ -66,6 +73,12 @@ def mailcow(method: str, path: str, body: dict | None = None):
             "Mailcow API açarı rədd edildi (401/403).\n"
             "API açarının IP icazə siyahısında Mailcow-un daxili şəbəkəsi "
             "(172.22.1.0/24) olmalıdır.",
+        )
+    if 300 <= r.status_code < 400:
+        raise HTTPException(
+            502,
+            f"Mailcow yönləndirmə qaytardı ({r.status_code} → "
+            f"{r.headers.get('location', '?')}). İstifadə olunan ünvan: {API_BASE}",
         )
     if r.status_code >= 400:
         raise HTTPException(502, f"Mailcow API xətası {r.status_code}: {r.text[:300]}")
