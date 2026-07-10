@@ -1,0 +1,12 @@
+services:
+  mailbox-web:
+    build: .
+    container_name: mailbox-web
+    restart: unless-stopped
+    env_file:
+      - ../config.env
+      - ../secrets.env
+    # YALNIZ 127.0.0.1 — xaricə açılmır. Girişi Caddy basic_auth ilə verir.
+    # Tətbiqin öz autentifikasiyası yoxdur və Mailcow API açarını saxlayır.
+    ports:
+      - "127.0.0.1:8095:8000"

@@ -146,6 +146,9 @@ bash scripts/add-domain-admin.sh musteri musteri.com
 ```
 Ətraflı runbook: [docs/YENI-DOMEN.md](docs/YENI-DOMEN.md)
 
+Eyni işlər üçün web panel də var (`mailadmin.tural.ai`, Caddy basic_auth arxasında):
+[docs/WEB-PANEL.md](docs/WEB-PANEL.md)
+
 ## Fayl strukturu
 ```
 MailBox/

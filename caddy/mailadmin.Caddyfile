@@ -1,0 +1,24 @@
+# =============================================================================
+#  MailBox admin paneli üçün Caddy bloku
+#
+#  ⚠️ TƏHLÜKƏSİZLİK: Tətbiqin ÖZ girişi yoxdur və Mailcow API açarını saxlayır.
+#     Yeganə qoruyucu bu basic_auth-dur. Onu SİLMƏ.
+#
+#  1) Parol hash-i yarat:
+#         caddy hash-password
+#     (parolu yaz, çıxan $2a$14$... sətrini aşağı yapışdır)
+#
+#  2) Bu bloku /etc/caddy/Caddyfile-a əlavə et, sonra:
+#         sudo caddy validate --config /etc/caddy/Caddyfile
+#         sudo systemctl reload caddy
+#
+#  Qeyd: Caddy v2.8-dən əvvəlki versiyalarda direktiv `basicauth` adlanır
+#        (alt xətt yoxdur). `caddy validate` xəta versə, onu sına.
+# =============================================================================
+
+mailadmin.tural.ai {
+	basic_auth {
+		admin BURAYA_BCRYPT_HASH_YAPISDIR
+	}
+	reverse_proxy 127.0.0.1:8095
+}
