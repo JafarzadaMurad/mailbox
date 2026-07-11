@@ -123,12 +123,16 @@ def _txt(name: str) -> list[str]:
 
 
 def dns_records(domain: str, dkim_txt: str) -> list[dict]:
+    # Ad kimi TAM DNS adı (FQDN) veririk. Səbəb: domen zonanın kökü (tural.ai)
+    # ola bilər, subdomen (chatbot.tural.ai) də. Nisbi ad ("@", "_dmarc") yalnız
+    # kök üçün düzgündür; FQDN hər iki halda birmənalıdır. DNS provayderi zona
+    # hissəsini özü tanıyır.
     return [
-        {"type": "MX", "name": "@", "value": MAIL_HOSTNAME, "extra": "prioritet 10"},
-        {"type": "TXT", "name": "@", "value": "v=spf1 mx ~all", "extra": "SPF — mövcud SPF varsa BİRLƏŞDİR, əvəz etmə"},
-        {"type": "TXT", "name": "dkim._domainkey", "value": dkim_txt, "extra": "DKIM"},
-        {"type": "TXT", "name": "_dmarc", "value": f"v=DMARC1; p=none; pct=100; rua=mailto:postmaster@{domain}", "extra": "DMARC"},
-        {"type": "SRV", "name": "_autodiscover._tcp", "value": f"0 1 443 {MAIL_HOSTNAME}", "extra": "istəyə görə (Outlook)"},
+        {"type": "MX", "name": domain, "value": MAIL_HOSTNAME, "extra": "prioritet 10"},
+        {"type": "TXT", "name": domain, "value": "v=spf1 mx ~all", "extra": "SPF — mövcud SPF varsa BİRLƏŞDİR, əvəz etmə"},
+        {"type": "TXT", "name": f"dkim._domainkey.{domain}", "value": dkim_txt, "extra": "DKIM"},
+        {"type": "TXT", "name": f"_dmarc.{domain}", "value": f"v=DMARC1; p=none; pct=100; rua=mailto:postmaster@{domain}", "extra": "DMARC"},
+        {"type": "SRV", "name": f"_autodiscover._tcp.{domain}", "value": f"0 1 443 {MAIL_HOSTNAME}", "extra": "istəyə görə (Outlook)"},
     ]
 
 
@@ -302,6 +306,7 @@ def dns_records_txt(domain: str):
     for r in recs:
         lines += [f"[{r['type']}] {r['name']}", f"  {r['value']}", f"  ({r['extra']})", ""]
     lines += [
+        "QEYD: 'Ad' tam DNS adıdır (FQDN). Subdomen üçün DNS provayderində '@' YOX, tam adı işlədin.",
         "QEYD: Cloudflare istifadə olunursa hamısı DNS only (boz bulud) olmalıdır.",
         "QEYD: Köhnə MX qeydlərini silin. Mövcud SPF varsa əvəz etməyin, birləşdirin.",
     ]

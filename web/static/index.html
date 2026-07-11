@@ -209,7 +209,11 @@ function recordsTable(domain, records) {
       <td><code>${esc(r.value)}</code>${copyBtn(r.value)}</td>
       <td style="color:var(--muted)">${esc(r.extra)}</td></tr>`).join('') +
     `</table>
-    <div class="msg err">⚠️ Köhnə MX qeydlərini silin. Mövcud SPF qeydi varsa
+    <div class="msg err">⚠️ <strong>"Ad" sütunu tam DNS adıdır (FQDN).</strong>
+    Domen zonanın köküdürsə DNS provayderində <code>@</code> yaza bilərsiniz;
+    <strong>subdomen</strong> olsa (məs. <code>chatbot.example.com</code>) <code>@</code> YOX,
+    tam adı işlədin — əks halda qeyd səhv yerə düşər.<br>
+    ⚠️ Köhnə MX qeydlərini silin. Mövcud SPF qeydi varsa
     <strong>əvəz etməyin, birləşdirin</strong> — bir domendə yalnız bir SPF ola bilər.
     Cloudflare-də hamısı <strong>DNS only (boz bulud)</strong> olmalıdır.</div>`;
 }

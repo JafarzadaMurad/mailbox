@@ -72,19 +72,24 @@ Mail serveri: \`${MAIL_HOSTNAME}\` (${SERVER_IP})
 
 > Cloudflare istifadə edirsinizsə, bütün qeydlər **DNS only (boz bulud)** olmalıdır.
 
+> **Qeyd — subdomen üçün.** Aşağıdakı "Ad" sütunu **tam DNS adıdır (FQDN)**.
+> Domen zonanın kökü olsa (məs. \`${DOMAIN}\` = \`example.com\`), DNS provayderində
+> \`@\` yaza bilərsiniz. Amma subdomen olsa (məs. \`chatbot.example.com\`), \`@\` YOX,
+> tam adı işlədin — əks halda qeyd səhv yerə düşər. Cloudflare tam adı qəbul edir.
+
 ## 1. MX — gələn maili yönləndirir
 
-| Tip | Ad | Dəyər | Prioritet |
-|-----|----|-------|-----------|
-| MX | \`@\` | \`${MAIL_HOSTNAME}\` | 10 |
+| Tip | Ad (FQDN) | Dəyər | Prioritet |
+|-----|-----------|-------|-----------|
+| MX | \`${DOMAIN}\` | \`${MAIL_HOSTNAME}\` | 10 |
 
 ⚠️ Domenin köhnə MX qeydləri varsa **silin** — əks halda mail köhnə provayderə gedər.
 
 ## 2. SPF — kimin bu domendən mail göndərə biləcəyi
 
-| Tip | Ad | Dəyər |
-|-----|----|-------|
-| TXT | \`@\` | \`v=spf1 mx ~all\` |
+| Tip | Ad (FQDN) | Dəyər |
+|-----|-----------|-------|
+| TXT | \`${DOMAIN}\` | \`v=spf1 mx ~all\` |
 
 ⚠️ **Domenin artıq SPF qeydi varsa, onu ƏVƏZ ETMƏYİN — birləşdirin.**
 Məsələn mövcud qeyd \`v=spf1 include:_spf.example.com ~all\` idisə, yenisi belə olmalıdır:
@@ -93,9 +98,9 @@ Məsələn mövcud qeyd \`v=spf1 include:_spf.example.com ~all\` idisə, yenisi 
 
 ## 3. DKIM — maili imzalayır
 
-| Tip | Ad | Dəyər |
-|-----|----|-------|
-| TXT | \`dkim._domainkey\` | (aşağıdakı uzun sətir) |
+| Tip | Ad (FQDN) | Dəyər |
+|-----|-----------|-------|
+| TXT | \`dkim._domainkey.${DOMAIN}\` | (aşağıdakı uzun sətir) |
 
 \`\`\`
 ${dkim_txt}
@@ -103,18 +108,18 @@ ${dkim_txt}
 
 ## 4. DMARC — siyasət və hesabatlar
 
-| Tip | Ad | Dəyər |
-|-----|----|-------|
-| TXT | \`_dmarc\` | \`v=DMARC1; p=none; pct=100; rua=mailto:postmaster@${DOMAIN}\` |
+| Tip | Ad (FQDN) | Dəyər |
+|-----|-----------|-------|
+| TXT | \`_dmarc.${DOMAIN}\` | \`v=DMARC1; p=none; pct=100; rua=mailto:postmaster@${DOMAIN}\` |
 
 ⚠️ Bir domendə yalnız **bir** \`_dmarc\` qeydi ola bilər.
 \`p=none\` ilə başlayın; hər şey oturuşandan sonra \`p=quarantine\`, sonra \`p=reject\`.
 
 ## 5. (İstəyə görə) Outlook avtomatik quraşdırma
 
-| Tip | Ad | Dəyər |
-|-----|----|-------|
-| SRV | \`_autodiscover._tcp\` | prioritet 0, çəki 1, port 443, hədəf \`${MAIL_HOSTNAME}\` |
+| Tip | Ad (FQDN) | Dəyər |
+|-----|-----------|-------|
+| SRV | \`_autodiscover._tcp.${DOMAIN}\` | prioritet 0, çəki 1, port 443, hədəf \`${MAIL_HOSTNAME}\` |
 
 ## Yoxlama
 
