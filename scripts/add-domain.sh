@@ -43,6 +43,15 @@ if grep -qi 'domain_exists\|already exists' <<<"$resp"; then
 else
   expect_success "$resp" "domen yaratma"
   info "Domen yaradıldı."
+  # Yeni domen əlavə olunanda SOGo onu tanıması üçün restart edilməlidir,
+  # yoxsa webmail girişi "Unauthorized" verir. docker əlçatandırsa edirik.
+  if command -v docker >/dev/null && [[ -d "$MAILCOW_DIR" ]]; then
+    info "SOGo restart edilir (yeni domeni tanısın deyə)"
+    (cd "$MAILCOW_DIR" && docker compose restart sogo-mailcow >/dev/null 2>&1) \
+      && info "SOGo restart edildi." \
+      || info "DİQQƏT: SOGo avtomatik restart olmadı. Əl ilə et:
+    cd $MAILCOW_DIR && docker compose restart sogo-mailcow"
+  fi
 fi
 
 # --- 2) DKIM açarını al ----------------------------------------------------

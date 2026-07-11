@@ -209,6 +209,9 @@ function recordsTable(domain, records) {
       <td><code>${esc(r.value)}</code>${copyBtn(r.value)}</td>
       <td style="color:var(--muted)">${esc(r.extra)}</td></tr>`).join('') +
     `</table>
+    <div class="msg err">⚠️ <strong>Webmail üçün SOGo-nu restart et</strong> — yeni domen
+    tanınsın deyə (yoxsa giriş "Unauthorized" verir):<br>
+    <code>cd /opt/mailcow-dockerized && sudo docker compose restart sogo-mailcow</code></div>
     <div class="msg err">⚠️ <strong>"Ad" sütunu tam DNS adıdır (FQDN).</strong>
     Domen zonanın köküdürsə DNS provayderində <code>@</code> yaza bilərsiniz;
     <strong>subdomen</strong> olsa (məs. <code>chatbot.example.com</code>) <code>@</code> YOX,
